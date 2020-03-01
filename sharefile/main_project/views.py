@@ -10,3 +10,10 @@ class IndexView(View):
 		print(files)
 		return render(request,'index.html',{"files":files})
 
+
+class DetailView(View):
+	def get(self,request,id):
+		file = File.objects.get(id=id)
+		return render(request,'detail.html',{"file":file})
+
+

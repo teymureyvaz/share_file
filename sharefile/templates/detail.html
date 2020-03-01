@@ -57,22 +57,12 @@
         <div class="container">
 
           <div class="row">
-            <div class="col-md-4">
-              {% for file in files  %}
-                <div class="card mb-4 box-shadow">
-                <div class="card-body">
-                  <p class="card-text">File name : {{ file.name }}</p>
-                   <p class="card-text">Description: {{ file.description }}</p>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="btn-group">
-                     <a href="{% url 'detail' id=file.id  %}"> <button type="button" class="btn btn-sm btn-outline-secondary">View</button></a>
-                    </div>
-                    <small class="text-muted">9 mins</small>
-                  </div>
-                </div>
-              </div>
-              {% endfor %}
-            </div>
+            {{ file.name }}
+            {{ file.description }}
+            {{ file.file }}
+            {{ file.expiration_date }}
+
+
           </div>
         </div>
       </div>
