@@ -55,19 +55,94 @@
 
       <div class="album py-5 bg-light">
         <div class="container">
-
-          <div class="row">
-            {{ file.name }}
-            {{ file.description }}
-            {{ file.file }}
-            {{ file.expiration_date }}
-
-
+          <div class="card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title"> {{ file.name }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{ file.expiration_date }}</h6>
+            <p class="card-text">{{ file.description }}</p>
+            <a href="#" class="card-link">Download</a>
+            <a href="#" class="card-link">Another link</a>
           </div>
+        </div>
+           <div class="row bootstrap snippets">
+              <div class="col-md-6 col-md-offset-2 col-sm-12">
+                  <div class="comment-wrapper">
+                      <div class="panel panel-info">
+                          <div class="panel-heading">
+                            Comments
+                          </div>
+                          <div class="panel-body">
+                              <input class="form-control" type="text"  id="comment-input" placeholder="write a comment..." rows="3"></input>
+                              <br>
+                              <button type="button"  id="comment-submit" class="btn btn-info pull-right">Post</button>
+                              <div class="clearfix"></div>
+                              <hr>
+                              <ul id ="comments-li" class="media-list">
+
+                                   {% for comment in comments %}
+                                  <li class="media">
+                                      
+                                      <div class="media-body">
+                                          <span class="text-muted pull-right">
+                                              <small class="text-muted">30 min ago</small>
+                                          </span>
+                                          <strong class="text-success">{{ comment.author }}</strong>
+                                          <p>
+                                             {{comment.text}}
+                                          </p>
+                                      </div>
+                                  </li>
+                           {% endfor %}
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
+
+              </div>
         </div>
       </div>
 
     </main>
+    <script>
+    var roomName = "{{ file.id |escapejs }}";
+    console.log(roomName);
+
+    var chatSocket = new WebSocket(
+        'ws://' + window.location.host +
+        '/' + roomName + '/');
+
+    chatSocket.onmessage = function(e) {
+        var data = JSON.parse(e.data);
+        var message = data['comment_text'];
+        var username = data['username'];
+
+        console.log(data);
+        var div = document.getElementById('comments-li');
+        div.innerHTML += ' <li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">30 min ago</small></span><strong class="text-success"> '+ username +'</strong><p> '+  message +' </p></div></li> ';
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    document.querySelector('#comment-input').focus();
+    document.querySelector('#comment-input').onkeyup = function(e) {
+        if (e.keyCode === 13) {  // enter, return
+            document.querySelector('#comment-submit').click();
+        }
+    };
+
+    document.querySelector('#comment-submit').onclick = function(e) {
+        var messageInputDom = document.querySelector('#comment-input');
+        var message = messageInputDom.value;
+        chatSocket.send(JSON.stringify({
+            'text': message,
+            'file_id' : roomName
+        }));
+
+        messageInputDom.value = '';
+    };
+</script>
 
 
     <!-- Bootstrap core JavaScript
@@ -76,7 +151,7 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
     <script src="../../assets/js/vendor/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <scentript src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
     <script src="../../assets/js/vendor/holder.min.js"></script>
   </body>
 </html>

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User 
+import datetime
 # Create your models here.
 
 class File(models.Model):
@@ -7,7 +8,8 @@ class File(models.Model):
 	name = models.CharField(max_length=200)
 	description  = models.CharField(max_length=500)
 	file = models.FileField(null=True,upload_to ='files/')
-	expiration_date = models.DateField(null=True)
+	expiration_date = models.DateField(default=datetime.date.today)
+	is_active = models.BooleanField(default=True)
 
 
 class UserFile(models.Model):
