@@ -55,12 +55,11 @@
 
       <div class="album py-5 bg-light">
         <div class="container">
-           <form method="post" enctype="multipart/form-data">
+            <form method="post">
               {% csrf_token %}
-              {{ form.as_p }}
-              <button type="submit">Upload</button>
-  </form>
-        </div>
+                <input type="tex" name="username_or_email" placeholder="write username or email here">
+              <button type="submit">Share</button>
+            </form>
       </div>
 
     </main>

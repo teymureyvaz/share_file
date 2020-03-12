@@ -4,14 +4,18 @@ from django.shortcuts import render, redirect
 from django.views import View
 from main_project.models import File
 from comments.models import  Comment
-from main_project.forms FileForm
+from main_project.forms import FileForm
+from django.contrib.auth.models import User
 # Create your views here.
+import re
+
+def email_or_username(email):
+  return bool(re.search(r"^[\w\.\+\-]+\@[\w]+\.[a-z]{2,3}$", email))
 
 
 class IndexView(View):
 	def get(self,request):
 		files = File.objects.filter(owner_id=request.user.id)
-		print(files)
 		return render(request,'index.html',{"files":files})
 
 
@@ -39,12 +43,35 @@ def signup_view(request):
 
 def model_form_upload(request):
     if request.method == 'POST':
-        form = FileForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('home')
+    	print(request.POST)
+    	print("___________________")
+    	name = request.POST.get('name')
+    	print(name)
+    	description  = request.POST.get('description')
+    	expiration_date = request.POST.get('expiration_date')
+    	file= request.FILES.get('file')
+    	print(file)
+    	file_obj = File(name=name,description=description,expiration_date=expiration_date,file=file,owner_id=request.user)
+    	print(file_obj)
+    	file_obj.save()
+    	print("salam")
+    	return redirect('/')
     else:
-        form = DocumentForm()
-    return render(request, 'core/model_form_upload.html', {
-        'form': form
-    })
+    	form = FileForm()
+    	return render(request, 'upload.html', {'form': form })
+
+
+def share(request,file_id):
+	if request.method == 'POST':
+		username_or_email =request.POST.get("username_or_email")
+		if email_or_username(username_or_email):
+			user = User.objects.filter(email=username_or_email)
+
+		else:
+			print("this is username")
+			user = User.objects.filter(username=username_or_email)
+			if not user:
+				return render 
+		return redirect('/')
+	else:
+		return render(request, 'share.html')

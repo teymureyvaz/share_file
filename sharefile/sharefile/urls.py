@@ -20,10 +20,12 @@ from django.conf.urls.static import static
 from main_project import views
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('home/',views.IndexView.as_view(),name="home"),
-    path('<int:file_id>/',views.DetailView.as_view(),name="detail"),
+    path('',views.IndexView.as_view(),name="home"),
+    path('file/<int:file_id>/',views.DetailView.as_view(),name="detail"),
     path('',include('django.contrib.auth.urls')),
-    path('signup/', views.signup_view, name="signup")
+    path('signup/', views.signup_view, name="signup"),
+    path('upload/',views.model_form_upload,name="model_form_upload"),
+    path('share/<int:file_id>/',views.share,name="share")
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
