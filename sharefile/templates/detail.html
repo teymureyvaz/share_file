@@ -1,57 +1,8 @@
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
 
-    <title>File sharing app</title>
-
-    <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/album/">
-
-    <!-- Bootstrap core CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
-    <!-- Custom styles for this template -->
-    <link href="album.css" rel="stylesheet">
-  </head>
-
-  <body>
-
-    <header>
-      <div class="collapse bg-dark" id="navbarHeader">
-        <div class="container">
-          <div class="row">
-            <div class="col-sm-8 col-md-7 py-4">
-              <h4 class="text-white">About</h4>
-              <p class="text-muted">You can upload and share your file here</p>
-            </div>
-            <div class="col-sm-4 offset-md-1 py-4">
-              <h4 class="text-white">Contact</h4>
-              <ul class="list-unstyled">
-                <li><a href="#" class="text-white">Follow on Twitter</a></li>
-                <li><a href="#" class="text-white">Like on Facebook</a></li>
-                <li><a href="#" class="text-white">Email me</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="navbar navbar-dark bg-dark box-shadow">
-        <div class="container d-flex justify-content-between">
-          <a href="#" class="navbar-brand d-flex align-items-center">
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <main role="main">
+{% extends "base.html" %}
+{% load static %}
+{% block contents %}
 
       <div class="album py-5 bg-light">
         <div class="container">
@@ -60,8 +11,8 @@
             <h5 class="card-title"> {{ file.name }}</h5>
             <h6 class="card-subtitle mb-2 text-muted">{{ file.expiration_date }}</h6>
             <p class="card-text">{{ file.description }}</p>
-            <a href="#" class="card-link">Download</a>
-            <a href="#" class="card-link">Another link</a>
+            <a href="{% url 'download' file_id=file.id %}" class="card-link">Download file</a>
+            <a href="{% url 'share' file_id=file.id  %}"> <button type="button" class="btn btn-sm btn-outline-secondary">Share</button></a>
           </div>
         </div>
            <div class="row bootstrap snippets">
@@ -69,15 +20,18 @@
                   <div class="comment-wrapper">
                       <div class="panel panel-info">
                           <div class="panel-heading">
-                            Comments
+                            
                           </div>
                           <div class="panel-body">
+                               {% if is_commentable %}
                               <input class="form-control" type="text"  id="comment-input" placeholder="write a comment..." rows="3"></input>
                               <br>
                               <button type="button"  id="comment-submit" class="btn btn-info pull-right">Post</button>
                               <div class="clearfix"></div>
                               <hr>
+                           
                               <ul id ="comments-li" class="media-list">
+
 
                                    {% for comment in comments %}
                                   <li class="media">
@@ -90,10 +44,14 @@
                                           <p>
                                              {{comment.text}}
                                           </p>
+                                          {% if comment.author.name == user %}
+                                          <a href="#">Edit</a> <a href="#">Delete</a>
+                                          {% endif %}
                                       </div>
                                   </li>
                            {% endfor %}
                               </ul>
+                              {% endif %}
                           </div>
                       </div>
                   </div>
@@ -101,11 +59,11 @@
               </div>
         </div>
       </div>
-
-    </main>
     <script>
     var roomName = "{{ file.id |escapejs }}";
     console.log(roomName);
+    var current_username = "{{ user }}"
+    console.log(current_username);
 
     var chatSocket = new WebSocket(
         'ws://' + window.location.host +
@@ -118,7 +76,10 @@
 
         console.log(data);
         var div = document.getElementById('comments-li');
-        div.innerHTML += ' <li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">30 min ago</small></span><strong class="text-success"> '+ username +'</strong><p> '+  message +' </p></div></li> ';
+        if (current_username==username){
+           div.innerHTML += ' <li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">30 min ago</small></span><strong class="text-success"> '+ username +'</strong><p> '+  message +' </p> <a href="#">Edit</a> <a href="#">Delete</a></div></li> ';
+        }
+       
     };
 
     chatSocket.onclose = function(e) {
@@ -144,15 +105,4 @@
     };
 </script>
 
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
-    <script src="../../assets/js/vendor/popper.min.js"></script>
-    <scentript src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
-    <script src="../../assets/js/vendor/holder.min.js"></script>
-  </body>
-</html>
-
+{% endblock %}

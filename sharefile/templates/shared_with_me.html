@@ -6,12 +6,17 @@
       <div class="album py-5 bg-light">
 
         <div class="container">
-           <a href="{% url 'model_form_upload' %}">  <button class="btn btn-primary">Upload new file</button></a>
-           <a class='pt-5 ' href="{% url 'shared' %}">  <button class="btn btn-dark">See who shared file with you</button></a>
-
+        <a href="{% url 'model_form_upload' %}">  <button class="btn btn-info">Upload new file</button></a>
+             {% if message %}
+              <p> {{message}} </p>
+              {% endif  %}
+        
               {% for file in files  %}
+
                 <div class="card mb-4 box-shadow">
                 <div class="card-body">
+                  <p class="card-text">File owner : {{ file.owner_id.username }}</p>
+
                   <p class="card-text">File name : {{ file.name }}</p>
                    <p class="card-text">Description: {{ file.description }}</p>
                   <div class="d-flex justify-content-between align-items-center">
@@ -25,9 +30,6 @@
                 </div>
               </div>
               {% endfor %}
-              {% if message %}
-                  <p> {{message}} </p>
-              {% endif  %}
         </div>
       </div>
 {% endblock %}

@@ -18,8 +18,6 @@ class CommentConsumer(AsyncWebsocketConsumer):
 
         await self.accept()
 
-    
-
     @database_sync_to_async
     def save_comment(self, comment):
         comment.save()

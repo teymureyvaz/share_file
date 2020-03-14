@@ -18,14 +18,18 @@ from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
 from main_project import views
+
+from django.contrib.auth.decorators import login_required, permission_required
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',views.IndexView.as_view(),name="home"),
-    path('file/<int:file_id>/',views.DetailView.as_view(),name="detail"),
+    path('',login_required(views.IndexView.as_view()),name="home"),
+    path('shared/',views.SharedWithMe.as_view(),name="shared"),
+    path('file/<int:file_id>/',login_required(views.DetailView.as_view()),name="detail"),
     path('',include('django.contrib.auth.urls')),
     path('signup/', views.signup_view, name="signup"),
     path('upload/',views.model_form_upload,name="model_form_upload"),
-    path('share/<int:file_id>/',views.share,name="share")
+    path('share/<int:file_id>/',views.share,name="share"),
+    path('download/<int:file_id>/',views.download,name="download"),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
