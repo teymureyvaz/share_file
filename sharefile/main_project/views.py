@@ -12,7 +12,7 @@ from .utils import email_or_username
 
 class IndexView(View):
 	def get(self,request):
-		files = File.objects.filter(owner_id=request.user.id)
+		files = File.objects.filter(owner_id=request.user.id,is_active=True)
 		print(files)
 		message = None
 		if len(files) < 1:
@@ -24,6 +24,7 @@ class DetailView(View):
 	def get(self,request,file_id):
 		file = File.objects.get(id=file_id)
 		shared_file = UserFile.objects.filter()
+		print(request.user.is_authenticated)
 		is_commentable = None
 		comments = []
 		if file.owner_id.id == request.user.id:
@@ -35,11 +36,9 @@ class DetailView(View):
 				return HttpResponse("You dont have acces this file")
 			is_commentable = shared_file[0]['is_commentable']
 		if is_commentable == True:
-			comments = Comment.objects.filter(file=file_id)
+			comments = Comment.objects.filter(file=file_id,is_active=True)
 		user = request.user.username
-		print("Sassa")
-		print(is_commentable)
-		return render(request,'detail.html',{"file":file,"comments":comments,"user":user,"is_commentable":is_commentable})
+		return render(request,'detail.html',{"file":file,"comments":comments,"username":user,"is_commentable":is_commentable})
 
 
 def signup_view(request):
@@ -56,6 +55,7 @@ def signup_view(request):
 	    return render(request, 'registration/register.html', {'form': form})
 	else:
 		return render(request,'registration/register.html', {'form': form})
+		
 @login_required
 def model_form_upload(request):
     if request.method == 'POST':
@@ -67,6 +67,7 @@ def model_form_upload(request):
     	expiration_date = request.POST.get('expiration_date')
     	file= request.FILES.get('file')
     	print(file)
+    	print(request.user)
     	file_obj = File(name=name,description=description,expiration_date=expiration_date,file=file,owner_id=request.user)
     	print(file_obj)
     	file_obj.save()

@@ -1,5 +1,3 @@
-
-
 {% extends "base.html" %}
 {% load static %}
 {% block contents %}
@@ -8,9 +6,9 @@
         <div class="container">
           <div class="card" style="width: 18rem;">
           <div class="card-body">
-            <h5 class="card-title"> {{ file.name }}</h5>
-            <h6 class="card-subtitle mb-2 text-muted">{{ file.expiration_date }}</h6>
-            <p class="card-text">{{ file.description }}</p>
+            <h5 class="card-title"><strong>Name:</strong> {{ file.name }}</h5>
+            <h6 class="card-subtitle mb-2 text-muted"> <strong>Will expire at:</strong> {{ file.expiration_date }}</h6>
+            <p class="card-text"> <strong>Description:</strong> {{ file.description }}</p>
             <a href="{% url 'download' file_id=file.id %}" class="card-link">Download file</a>
             <a href="{% url 'share' file_id=file.id  %}"> <button type="button" class="btn btn-sm btn-outline-secondary">Share</button></a>
           </div>
@@ -20,7 +18,6 @@
                   <div class="comment-wrapper">
                       <div class="panel panel-info">
                           <div class="panel-heading">
-                            
                           </div>
                           <div class="panel-body">
                                {% if is_commentable %}
@@ -32,21 +29,27 @@
                            
                               <ul id ="comments-li" class="media-list">
 
-
                                    {% for comment in comments %}
-                                  <li class="media">
-                                      
+                                  <li id={{comment.id}} class="media">
+                                
                                       <div class="media-body">
                                           <span class="text-muted pull-right">
-                                              <small class="text-muted">30 min ago</small>
+
+                                              <small class="text-muted">{{comment.publish_date |timesince }} ago</small>
                                           </span>
                                           <strong class="text-success">{{ comment.author }}</strong>
-                                          <p>
+                                          <p class="comment-text">
                                              {{comment.text}}
-                                          </p>
-                                          {% if comment.author.name == user %}
-                                          <a href="#">Edit</a> <a href="#">Delete</a>
-                                          {% endif %}
+                                          </p>       
+                                        
+                                         {% if comment.author.username == username %}
+                                          <button data-toggle="modal" class="btn btn-primary" data-id={{comment.id}} data-target="#exampleModal" href="#">Edit</button>
+                                          <button type="button" data-toggle="modal" class="btn btn-primary" data-id={{comment.id}}  data-target="#exampleModaDelete">Delete</button>
+
+                                          {% elif file.owner_id.username == username %}
+                                           <button type="button" data-toggle="modal" class="btn btn-primary" data-id={{comment.id}}  data-target="#exampleModaDelete">Delete</button>
+                                           {% endif %}
+                                         
                                       </div>
                                   </li>
                            {% endfor %}
@@ -59,7 +62,92 @@
               </div>
         </div>
       </div>
+      <!--  update modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Edit comment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+                <p id="submit-comment-id"></p>
+              </div>
+              <div class="modal-body">
+                <form>
+                  <div class="form-group">
+                    <textarea class="form-control" id="comment-text"></textarea>
+                  </div>
+                </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" id="submit-edit"  class="btn btn-primary">Submit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      <!-- delete modal -->
+        <div class="modal fade" id="exampleModaDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Deleting</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                Are you sure to delete this comment?
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <button type="button" id="submit-delete" class="btn btn-primary">Yes</button>
+              </div>
+            </div>
+          </div>
+        </div>
     <script>
+      var current_comment = null;
+        $('#exampleModal').on('show.bs.modal', function (event) {
+          console.log("ay cahamaaat kusdum");
+          var button = $(event.relatedTarget); 
+          var comment_id = button.data('id');
+          var current_text = $("#"+ comment_id + " .media-body .comment-text").html();
+          console.log(current_text);
+          $("#comment-text").val(current_text.trim());
+          current_comment = comment_id;
+})
+       $('#exampleModaDelete').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget);
+          var comment_id = button.data('id');
+          current_comment = comment_id;
+})
+
+
+   $('#submit-edit').on('click', function (event) {
+    var comment_text = $("#comment-text").val();
+    var comment_id = current_comment;
+     chatSocket.send(JSON.stringify({
+            'comment_id': comment_id,
+            'comment_text' : comment_text
+        }));
+
+    $("#comment-text").val(" ");
+    $("#exampleModal").modal("hide");
+    $(".modal-backdrop").remove();
+})
+
+    $('#submit-delete').on('click', function (event) {
+    var comment_id = current_comment;
+     chatSocket.send(JSON.stringify({
+            'deleted_comment_id': comment_id
+        }));
+
+    $("#exampleModaDelete").modal("hide");
+    $(".modal-backdrop").remove();
+})
+
     var roomName = "{{ file.id |escapejs }}";
     console.log(roomName);
     var current_username = "{{ user }}"
@@ -71,14 +159,30 @@
 
     chatSocket.onmessage = function(e) {
         var data = JSON.parse(e.data);
-        var message = data['comment_text'];
-        var username = data['username'];
-
         console.log(data);
-        var div = document.getElementById('comments-li');
-        if (current_username==username){
-           div.innerHTML += ' <li class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">30 min ago</small></span><strong class="text-success"> '+ username +'</strong><p> '+  message +' </p> <a href="#">Edit</a> <a href="#">Delete</a></div></li> ';
+        if ('username' in data){
+            var message = data['comment_text'];
+            var username = data['username'];
+            var file_owner_username = data['file_owner_username'];
+            var comment_id_creation = data['comment_id_creation'];
+            console.log(comment_id_creation);
+            var div = document.getElementById('comments-li');
+            if (current_username==username){
+               div.innerHTML += '<li id='+comment_id_creation+' class="media"><div class="media-body"><span class="text-muted pull-right"><small class="text-muted">0 minutes ago</small></span><strong class="text-success"> '+ username +'</strong><p class="comment-text"> '+  message +' </p>  <button data-toggle="modal" class="btn btn-primary" data-id='+comment_id_creation+' data-target="#exampleModal" href="#">Edit</button>  <button type="button" data-toggle="modal" class="btn btn-primary" data-id=' +comment_id_creation+' data-target="#exampleModaDelete">Delete</button></div></li>';
+            }
+
+        } else if ('comment_id' in data){
+            comment_id = data['comment_id'];
+            comment_text = data['comment_text'];
+
+            $("#"+ comment_id + " .media-body .comment-text").html(comment_text);
+        } else{
+            console.log("sakanan")
+            comment_id = data['comment_delete_id'];
+            console.log(comment_id);
+            $("#"+comment_id).remove();
         }
+       
        
     };
 
