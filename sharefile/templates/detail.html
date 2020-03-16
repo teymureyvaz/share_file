@@ -110,7 +110,6 @@
     <script>
       var current_comment = null;
         $('#exampleModal').on('show.bs.modal', function (event) {
-          console.log("ay cahamaaat kusdum");
           var button = $(event.relatedTarget); 
           var comment_id = button.data('id');
           var current_text = $("#"+ comment_id + " .media-body .comment-text").html();
