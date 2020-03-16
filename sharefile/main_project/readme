@@ -1,0 +1,12 @@
+1) ilk olaraq aşağıdakı komanda ilə redis,postgre ve djangonu build edib,daha sonra up edecek(butun requirementler install olunacaq):
+
+sudo docker-compose up -d --build
+
+2) Admin istifadəçi yaratmaq üçün aşağıdakı komandadan istifadə edə bilərsiniz:
+
+sudo docker-compose exec web python3 createsuperuser
+
+3) daha sonra celeryni işlətmək üçün aşağıdakı komanda çalışdırılır: 
+
+sudo docker-compose exec web celery -A sharefile  beat --loglevel=debug
+ 
