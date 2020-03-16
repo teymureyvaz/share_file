@@ -1,0 +1,32 @@
+version: '3.3'
+
+services:
+  web:
+    build: .
+    command: sh -c "python3 manage.py runserver 0.0.0.0:8000 && python3 manage.py migrate --noinput"
+    volumes:
+      - .:/home/teymur/Desktop/file_sharing_app/sharefile/
+    ports:
+      - 8000:8000
+    env_file:
+      - ./a.env.dev
+    depends_on:
+      - db
+      - redis
+    environment:
+      - REDIS_HOST=redis
+  db:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=r00t123
+      - POSTGRES_DB=file_share
+  redis:
+    image: redis:3.2-alpine
+    volumes:
+      - redis_data:/data
+volumes:
+  postgres_data:
+  redis_data:

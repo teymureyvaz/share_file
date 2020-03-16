@@ -25,7 +25,7 @@ SECRET_KEY = 'z-1==b+*p+p-!j_pyin+@5!%ybqiwa!ft(hy23e3mu=++z@8u%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -87,13 +87,13 @@ CHANNEL_LAYERS = {
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'file_share_db',
-        'USER': 'admin',
-        'PASSWORD': '123456',
-        'HOST': 'localhost',
-        'PORT': '',
+    "default": {
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        "USER": os.environ.get("SQL_USER", "user"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
     }
 }
 
@@ -139,12 +139,11 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login'
 LOGIN_URL='/login'
- 
-# If time zones are active (USE_TZ = True) define your local CELERY_TIMEZONE = 'Asia/Kolkata'
-enable_utc = False # so celery doesn't take utc by default
-# We're going to have our tasks rolling soon, so that will be handy CELERY_BEAT_SCHEDULE = {}
+
+enable_utc = False 
+
 
 from celery.schedules import crontab   
-CELERY_BROKER_URL = 'redis://localhost:6379' 
+CELERY_BROKER_URL = 'redis://redis:6379' 
 CELERY_TIMEZONE = 'Asia/Baku'   
 # Let's make things happen 

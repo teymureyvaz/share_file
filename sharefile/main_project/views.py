@@ -111,13 +111,16 @@ class SharedWithMe(View):
 	def get(self,request):
 		shared_files =  UserFile.objects.filter(shared_user_id=request.user.id)
 		message = None
-		if len(shared_files) <1 :
-			message = "No one shared a file with you,you can ask them directly to share file with you."
 		files = []
 		for shared in shared_files:
 			files.append(shared.file_id)
-
-		return render(request,'shared_with_me.html',{"files":files,"message":message})
+		active_files = []
+		for file in files:
+			if file.is_active != False:
+				active_files.append(file)
+		if len(active_files) <1 :
+			message = "No one shared a file with you,you can ask them directly to share file with you."
+		return render(request,'shared_with_me.html',{"files":active_files,"message":message})
 
 @login_required
 def download(request,file_id):

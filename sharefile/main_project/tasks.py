@@ -8,7 +8,7 @@ from celery.utils.log import get_task_logger
 logger = get_task_logger(__name__)
 
 
-@periodic_task(run_every=(crontab(hour=00)), name="run_every_12", ignore_result=True)
+@periodic_task(run_every=(crontab(hour=9,minute=30)), name="run_every_12", ignore_result=True)
 def run_every_12():
 	files = File.objects.all()
 	for file in files:
