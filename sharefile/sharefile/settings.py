@@ -37,9 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_beat',
     'main_project',
     'comments',
-    'channels'
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -139,3 +140,14 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),]
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login'
 LOGIN_URL='/login'
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379'   
+# If time zones are active (USE_TZ = True) define your local CELERY_TIMEZONE = 'Asia/Kolkata'
+enable_utc = False # so celery doesn't take utc by default
+# We're going to have our tasks rolling soon, so that will be handy CELERY_BEAT_SCHEDULE = {}
+
+from celery.schedules import crontab   
+CELERY_BROKER_URL = 'redis://localhost:6379' 
+CELERY_TIMEZONE = 'Europe/Warsaw'   
+# Let's make things happen 
